@@ -1,13 +1,5 @@
 {
   "users" : [ {
-    "id" : "55dfddea-7055-45e1-828a-854e7db7ef77",
-    "firstName" : "Gaurav",
-    "lastName" : "HAHAHAHA"
-  }, {
-    "id" : "7fe4d6b5-6ab0-440b-9b76-366405b732c6",
-    "firstName" : "Gaurav Mahilpuria",
-    "lastName" : "Mazra saab"
-  }, {
     "id" : "292cab5c-0462-455d-9bcc-c8eb8a0d3d41",
     "firstName" : "Gaurav Mahilpuria123",
     "lastName" : "Mazra saab123"

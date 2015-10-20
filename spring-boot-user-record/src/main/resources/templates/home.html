@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html ng-app="userrecord">
+<head>
+<meta charset="ISO-8859-1">
+<title>All Users</title>
+<script type="text/javascript"
+	src="bower_components/angular/angular.min.js"></script>
+<script type="text/javascript"
+	src="bower_components/angular-animate/angular-animate.min.js"></script>
+<script type="text/javascript"
+	src="bower_components/angular-mocks/angular-mocks.min.js"></script>
+<script type="text/javascript"
+	src="bower_components/angular-resource/angular-resource.min.js"></script>
+<script type="text/javascript"
+	src="bower_components/angular-route/angular-route.min.js"></script>
+<script type="text/javascript"
+	src="bower_components/jquery/dist/jquery.min.js"></script>
+<link type="text/css"
+	href="bower_components/bootstrap/dist/css/bootstrap.css"></link>
+	<script type="text/javascript">
+		var userrecord = angular.module('userrecord', []);
+		userrecord.controller('UserController', ['$scope', function($scope) {
+			$scope.hello = "Hello Gaurav";	
+		}]); 
+	</script>
+</head>
+<body>
+		<div class="container" ng-controller="UserController">
+			{{hello}}
+		</div>
+</body>
+</html>
