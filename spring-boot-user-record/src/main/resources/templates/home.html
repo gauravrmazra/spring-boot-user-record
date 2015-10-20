@@ -33,26 +33,99 @@
 			}
 			
 			this.findById = function(id) {
-				for (contact in contacts) {
+				for (user in users) {
+					if (user.id === id)
+						return user;
 				}
+				return null;
+			}
+			
+			this.remove = function(user) {
+				var u;
+				for ( var i = 0; i < users.length; i++) {
+					u = users[i];
+					if (u.id === user.id)
+					{
+						users.splice(i, 1);
+						break;
+					}
+				}
+			}
+			
+			this.update = function(user) {
+				var u;
+				for ( var i = 0; i < users.length; i++) {
+					u = users[i];
+					if (u.id === user.id)
+					{
+						users[i] = user;
+						break;
+					}
+				}
+			}
+    
+			this.save = function(user) {
+				users[users.length] = user;
 			}
 		});
  
-
-
-
-		
-		
-		
-		
-		
-		
-		
+		userModule.controller('UserController', ['$scope', 'LocalUserService',  function($scope, LocalUserService) {
+			$scope.users = LocalUserService.findAll();
+			$scope.newUser = {};
+			
+			$scope.deleteUser = function(userId) {
+				var user = LocalUserService.findById(userId);
+				if (user == null) {
+					alert('Exception occured!!! Unable to delete...');
+					return;
+				}
+				LocalUserService.remove(user);
+			}
+			
+			$scope.updateUser = function(u) {
+				var user = LocalUserService.findById(u.id);
+				if (user == null) {
+					alert('Exception occured!!! Unable to update');
+					return;
+				}
+				LocalUserService.update(user);
+			}
+			
+			$scope.saveUser = function(user) {
+				++randomUid;
+				user.id = randomUid + "";
+				LocalUserService.save(user);
+			}
+			
+			$scope.updateOrSaveUser = function() {
+				var u = $scope.newUser;
+				
+				if (u.id == null || typeof u.id == 'undefined' || u.id == '') {
+					saveUser(u);
+				}
+				else
+					updateUser(u);
+			}
+			
+			$scope.editUser = function(userId) {
+				var user = LocalUserService.findById(userId);
+				
+				if (user == null) {
+					alert('Exception occoured. couldnt process edit...');
+					return;
+				}
+				$scope.newUser = user;
+			}
+			
+			$scope.createUser = function() {
+				$scope.newUser = {};
+			}
+		}]);
 	</script>
 </head>
 <body>
 		<div class="container" ng-controller="UserController">
-			{{hello}} <button ng-click="clickedHello()">Click me</button>
+			
 		</div>
 </body>
 </html>
