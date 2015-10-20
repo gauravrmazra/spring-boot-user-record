@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="userrecord">
+<html ng-app="userModule">
 <head>
 <meta charset="ISO-8859-1">
 <title>All Users</title>
@@ -8,7 +8,7 @@
 <script type="text/javascript"
 	src="bower_components/angular-animate/angular-animate.min.js"></script>
 <script type="text/javascript"
-	src="bower_components/angular-mocks/angular-mocks.min.js"></script>
+	src="bower_components/angular-mocks/angular-mocks.js"></script>
 <script type="text/javascript"
 	src="bower_components/angular-resource/angular-resource.min.js"></script>
 <script type="text/javascript"
@@ -18,15 +18,41 @@
 <link type="text/css"
 	href="bower_components/bootstrap/dist/css/bootstrap.css"></link>
 	<script type="text/javascript">
-		var userrecord = angular.module('userrecord', []);
-		userrecord.controller('UserController', ['$scope', function($scope) {
-			$scope.hello = "Hello Gaurav";	
-		}]); 
+		var userModule = angular.module('userModule', []);
+		userModule.service('LocalUserService', function() {
+			var randomUid = 1;
+			var users = [{
+								"id" : "292cab5c-0462-455d-9bcc-c8eb8a0d3d41",
+								"firstName" : "Gaurav Mahilpuria123",
+								"lastName" : "Mazra saab123"
+							}];
+			
+			
+			this.findAll = function() {
+				return users;
+			}
+			
+			this.findById = function(id) {
+				for (contact in contacts) {
+				}
+			}
+		});
+ 
+
+
+
+		
+		
+		
+		
+		
+		
+		
 	</script>
 </head>
 <body>
 		<div class="container" ng-controller="UserController">
-			{{hello}}
+			{{hello}} <button ng-click="clickedHello()">Click me</button>
 		</div>
 </body>
 </html>
