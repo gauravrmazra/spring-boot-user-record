@@ -1,10 +1,10 @@
 package in.blogspot.javawithgaurav.domain;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
-@XmlRootElement
-public class User {
-    private String id;
+public class User implements Serializable {
+	private static final long serialVersionUID = -8374260443109994760L;
+	private String id;
     private String firstName;
     private String lastName;
     
