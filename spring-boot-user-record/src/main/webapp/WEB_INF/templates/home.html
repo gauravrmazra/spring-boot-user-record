@@ -4,26 +4,34 @@
 <meta charset="ISO-8859-1">
 <title>All Users</title>
 <script type="text/javascript"
-	src="../bower_components/angular/angular.min.js"></script>
+	src="WEB_INF/bower_components/angular/angular.min.js"></script>
 <script type="text/javascript"
-	src="../bower_components/angular-animate/angular-animate.min.js"></script>
+	src="WEB_INF/bower_components/angular-animate/angular-animate.min.js"></script>
 <script type="text/javascript"
-	src="../bower_components/angular-mocks/angular-mocks.js"></script>
+	src="WEB_INF/bower_components/angular-mocks/angular-mocks.js"></script>
 <script type="text/javascript"
-	src="../bower_components/angular-resource/angular-resource.min.js"></script>
+	src="WEB_INF/bower_components/angular-resource/angular-resource.min.js"></script>
 <script type="text/javascript"
-	src="../bower_components/angular-route/angular-route.min.js"></script>
+	src="WEB_INF/bower_components/angular-route/angular-route.min.js"></script>
 <script type="text/javascript"
-	src="../bower_components/jquery/dist/jquery.min.js"></script>
+	src="WEB_INF/bower_components/jquery/dist/jquery.min.js"></script>
 <link type="text/css"
-	href="../bower_components/bootstrap/dist/css/bootstrap.css"></link>
+	href="WEB_INF/bower_components/bootstrap/dist/css/bootstrap.css"></link>
 	<script type="text/javascript">
 		var userModule = angular.module('userModule', []);
 		userModule.service('LocalUserService', function() {
 			var randomUid = 1;
 			var users = [{
 								"id" : "292cab5c-0462-455d-9bcc-c8eb8a0d3d41",
-								"firstName" : "Gaurav Mahilpuria123",
+								"firstName" : "Gaurav Mahilpuria",
+								"lastName" : "Mazra saab"
+							}, {
+								"id" : "292cab5c-0462-455d-9bcc-c8eb8a0d3d38",
+								"firstName" : "Gaurav Mahilpuria3",
+								"lastName" : "Mazra saab123"
+							}, {
+								"id" : "292cab5c-0462-455d-9bcc-c8eb8a0d3d39",
+								"firstName" : "Gaurav Mahilpuria3",
 								"lastName" : "Mazra saab123"
 							}];
 			
@@ -33,9 +41,9 @@
 			}
 			
 			this.findById = function(id) {
-				for (user in users) {
-					if (user.id === id)
-						return user;
+				for (i in users) {
+					if (users[i].id === id)
+						return users[i];
 				}
 				return null;
 			}
@@ -80,6 +88,8 @@
 					return;
 				}
 				LocalUserService.remove(user);
+				
+				$scope.users = LocalUserService.findAll();
 			}
 			
 			$scope.updateUser = function(u) {
@@ -120,12 +130,67 @@
 			$scope.createUser = function() {
 				$scope.newUser = {};
 			}
+			
+			$scope.cancelAction = function() {
+				$scope.newUser = {};
+			}
 		}]);
 	</script>
 </head>
 <body>
 		<div class="container" ng-controller="UserController">
+			<div class="row addUser">
+				<div class="col-md-12">
+					<button ng-click="createUser()">Create New User</button>
+				</div>
+			</div>
 			
+			<div class="container createOrUpdateNewUser">
+				<div class="row">
+					<div class="col-md-3">
+						First Name
+					</div>
+					<div class="col-md-9">
+						<input type="text" ng-model="newUser.firstName">
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-3">
+						Last Name
+					</div>
+					<div class="col-md-9">
+						<input type="text" ng-model="newUser.lastName">
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<button ng-click="saveOrUpdateUser()">Create/Update</button>&nbsp;&nbsp;&nbsp;
+						<button ng-click="cancelAction()">Cancel</button>
+					</div>
+				</div>
+				
+			</div>
+			
+			<div class="row showAllUsers">
+				<div class="col-span-12">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>First Name</th>
+								<th>Last Name</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="user in users">
+								<td>{{user.firstName}}</td>
+								<td>{{user.lastName}}</td>
+								<td><button ng-click="editUser(user.id)">Edit</button>&nbsp;&nbsp;&nbsp;<button ng-click="deleteUser(user.id);">Delete</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>			
 		</div>
 </body>
 </html>
