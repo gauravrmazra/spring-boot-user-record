@@ -17,10 +17,11 @@
 	src="WEB_INF/bower_components/jquery/dist/jquery.min.js"></script>
 <link type="text/css"
 	href="WEB_INF/bower_components/bootstrap/dist/css/bootstrap.css"></link>
+<link type="text/css"
+	href="WEB_INF/bower_components/bootstrap/dist/css/bootstrap-theme.css"></link>
 	<script type="text/javascript">
 		var userModule = angular.module('userModule', []);
 		userModule.service('LocalUserService', function() {
-			var randomUid = 1;
 			var users = [{
 								"id" : "292cab5c-0462-455d-9bcc-c8eb8a0d3d41",
 								"firstName" : "Gaurav Mahilpuria",
@@ -80,7 +81,8 @@
 		userModule.controller('UserController', ['$scope', 'LocalUserService',  function($scope, LocalUserService) {
 			$scope.users = LocalUserService.findAll();
 			$scope.newUser = {};
-			
+			$scope.showAllUsers = true;
+			var randomUid = 1;
 			$scope.deleteUser = function(userId) {
 				var user = LocalUserService.findById(userId);
 				if (user == null) {
@@ -107,14 +109,16 @@
 				LocalUserService.save(user);
 			}
 			
-			$scope.updateOrSaveUser = function() {
+			$scope.saveOrUpdateUser = function() {
 				var u = $scope.newUser;
 				
 				if (u.id == null || typeof u.id == 'undefined' || u.id == '') {
-					saveUser(u);
+					$scope.saveUser(u);
 				}
 				else
-					updateUser(u);
+					$scope.updateUser(u);
+					
+				$scope.showAllUsers = true;
 			}
 			
 			$scope.editUser = function(userId) {
@@ -125,14 +129,17 @@
 					return;
 				}
 				$scope.newUser = user;
+				$scope.showAllUsers = false;
 			}
 			
 			$scope.createUser = function() {
 				$scope.newUser = {};
+				$scope.showAllUsers = false;
 			}
 			
 			$scope.cancelAction = function() {
 				$scope.newUser = {};
+				$scope.showAllUsers = true;
 			}
 		}]);
 	</script>
@@ -145,7 +152,7 @@
 				</div>
 			</div>
 			
-			<div class="container createOrUpdateNewUser">
+			<div class="container createOrUpdateNewUser" ng-show="!showAllUsers">
 				<div class="row">
 					<div class="col-md-3">
 						First Name
@@ -171,7 +178,7 @@
 				
 			</div>
 			
-			<div class="row showAllUsers">
+			<div class="row showAllUsers" ng-show="showAllUsers">
 				<div class="col-span-12">
 					<table class="table table-striped">
 						<thead>
@@ -185,7 +192,7 @@
 							<tr ng-repeat="user in users">
 								<td>{{user.firstName}}</td>
 								<td>{{user.lastName}}</td>
-								<td><button ng-click="editUser(user.id)">Edit</button>&nbsp;&nbsp;&nbsp;<button ng-click="deleteUser(user.id);">Delete</button></td>
+								<td><button ng-click="editUser(user.id);">Edit</button>&nbsp;&nbsp;&nbsp;<button ng-click="deleteUser(user.id);">Delete</button></td>
 							</tr>
 						</tbody>
 					</table>
