@@ -1,4 +1,4 @@
 {
-  "directory": "src/java/resources/bower_components",
+  "directory": "src/main/webapp/WEB_INF/bower_components",
   "interactive": false
 }

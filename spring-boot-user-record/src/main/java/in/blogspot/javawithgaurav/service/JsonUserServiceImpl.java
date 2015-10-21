@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -21,9 +20,10 @@ import com.fasterxml.jackson.databind.util.EmptyIterator;
 
 import in.blogspot.javawithgaurav.domain.User;
 
+
 @Service
 public class JsonUserServiceImpl implements UserService {
-	public static void main(String args[]) {
+	/*public static void main(String args[]) {
 		JsonUserServiceImpl service = new JsonUserServiceImpl();
 		
 		List<User> users = service.findAll();
@@ -71,7 +71,7 @@ public class JsonUserServiceImpl implements UserService {
 		users.add(u);
 		
 		service.writeDataInJsonFile(users);
-	}
+	}*/
 	
 	private void writeDataInJsonFile(List<User> users) {
 		JsonFactory jsonFactory = new JsonFactory(); 
