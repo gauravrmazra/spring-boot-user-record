@@ -2,6 +2,7 @@ package in.blogspot.javawithgaurav.controller;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,6 +57,7 @@ public class UserController {
     public User createUser(@RequestBody User user) {
         final User tempUser = userService.findById(user.getId());
         RestPreConditions.requireNull(tempUser);
+        user.setId(UUID.randomUUID().toString());
         return userService.save(user);
     }
 }

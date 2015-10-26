@@ -15,121 +15,101 @@
 	src="WEB_INF/bower_components/angular-route/angular-route.min.js"></script>
 <script type="text/javascript"
 	src="WEB_INF/bower_components/jquery/dist/jquery.min.js"></script>
-<link type="text/css"
+<link rel="stylesheet" type="text/css"
 	href="WEB_INF/bower_components/bootstrap/dist/css/bootstrap.css"></link>
-<link type="text/css"
+<link rel="stylesheet" type="text/css"
 	href="WEB_INF/bower_components/bootstrap/dist/css/bootstrap-theme.css"></link>
 	<script type="text/javascript">
 		var userModule = angular.module('userModule', []);
-		userModule.service('LocalUserService', function() {
-			var users = [{
-								"id" : "292cab5c-0462-455d-9bcc-c8eb8a0d3d41",
-								"firstName" : "Gaurav Mahilpuria",
-								"lastName" : "Mazra saab"
-							}, {
-								"id" : "292cab5c-0462-455d-9bcc-c8eb8a0d3d38",
-								"firstName" : "Gaurav Mahilpuria3",
-								"lastName" : "Mazra saab123"
-							}, {
-								"id" : "292cab5c-0462-455d-9bcc-c8eb8a0d3d39",
-								"firstName" : "Gaurav Mahilpuria3",
-								"lastName" : "Mazra saab123"
-							}];
-			
+		userModule.value('usersModelValue', []);
+		
+		userModule.service('ServerUserService', ['$http', '$q', 'usersModelValue', '$log', function($http, $q, usersModelValue, $log) {
 			
 			this.findAll = function() {
-				return users;
+				$http.get('/users/').then(function successCallback(response) {	
+						angular.copy(response.data, usersModelValue);
+					}, function errorCallback(response) {
+						$log.error(response.status + " " + response.statusText);
+					});
+			}
+			
+			this.findAllLocal = function() {
+				return $http.get('/users/');
 			}
 			
 			this.findById = function(id) {
-				for (i in users) {
-					if (users[i].id === id)
-						return users[i];
-				}
-				return null;
+				return $http.get('/users/' + id);
 			}
 			
-			this.remove = function(user) {
-				var u;
-				for ( var i = 0; i < users.length; i++) {
-					u = users[i];
-					if (u.id === user.id)
-					{
-						users.splice(i, 1);
-						break;
-					}
-				}
+			this.remove = function(id) {
+				$http.delete('/users/' + id).then(function successCallback(response) {
+			  		$log.log(response.status + " " + response.statusText + " data:" + response.data);
+				}, function errorCallback(response) {
+					$log.error(response.status + " " + response.statusText);
+				});
 			}
 			
 			this.update = function(user) {
-				var u;
-				for ( var i = 0; i < users.length; i++) {
-					u = users[i];
-					if (u.id === user.id)
-					{
-						users[i] = user;
-						break;
-					}
-				}
+				$http.put('/users/' + user.id, user).then(function successCallback(response) {
+			  		$log.log(response.data);
+				}, function errorCallback(response) {
+					log.error(response.status + " " + response.statusText);
+				});
 			}
     
 			this.save = function(user) {
-				users[users.length] = user;
+				$http.post('/users/', user).then(function successCallback(response) {
+			  		$log.log(response.data);
+				}, function errorCallback(response) {
+					$log.error(response.status + " " + response.statusText);
+				});
 			}
-		});
- 
-		userModule.controller('UserController', ['$scope', 'LocalUserService',  function($scope, LocalUserService) {
-			$scope.users = LocalUserService.findAll();
+		}]);
+		
+		
+		userModule.controller('UserController', ['$scope', 'usersModelValue', 'ServerUserService', '$timeout',  function($scope, usersModelValue, ServerUserService, $timeout) {
+			$scope.users = usersModelValue;
+			
+			ServerUserService.findAll();
+			
 			$scope.newUser = {};
 			$scope.showAllUsers = true;
-			var randomUid = 1;
+			
 			$scope.deleteUser = function(userId) {
-				var user = LocalUserService.findById(userId);
-				if (user == null) {
-					alert('Exception occured!!! Unable to delete...');
-					return;
-				}
-				LocalUserService.remove(user);
-				
-				$scope.users = LocalUserService.findAll();
+				ServerUserService.remove(userId);
+				$scope.findAllLocal();
 			}
 			
-			$scope.updateUser = function(u) {
-				var user = LocalUserService.findById(u.id);
-				if (user == null) {
-					alert('Exception occured!!! Unable to update');
-					return;
-				}
-				LocalUserService.update(user);
+			$scope.updateUser = function(user) {
+				ServerUserService.update(user);
+				$scope.findAllLocal();
 			}
 			
 			$scope.saveUser = function(user) {
-				++randomUid;
-				user.id = randomUid + "";
-				LocalUserService.save(user);
+				ServerUserService.save(user);
+				$scope.findAllLocal();
 			}
 			
 			$scope.saveOrUpdateUser = function() {
-				var u = $scope.newUser;
+				debugger;
+				var user = $scope.newUser;
 				
-				if (u.id == null || typeof u.id == 'undefined' || u.id == '') {
-					$scope.saveUser(u);
+				if (user.id == null || typeof user.id == 'undefined' || user.id == '') {
+					$scope.saveUser(user);
 				}
 				else
-					$scope.updateUser(u);
+					$scope.updateUser(user);
 					
 				$scope.showAllUsers = true;
 			}
 			
 			$scope.editUser = function(userId) {
-				var user = LocalUserService.findById(userId);
-				
-				if (user == null) {
-					alert('Exception occoured. couldnt process edit...');
-					return;
-				}
-				$scope.newUser = user;
-				$scope.showAllUsers = false;
+				ServerUserService.findById(userId).then(function successCallback(response) {
+					$scope.newUser = response.data;
+					$scope.showAllUsers = false;
+				}, function errorCallback(response) {
+					alert(response.status + " " + response.statusText);
+				});
 			}
 			
 			$scope.createUser = function() {
@@ -141,6 +121,18 @@
 				$scope.newUser = {};
 				$scope.showAllUsers = true;
 			}
+			
+			$scope.findAllLocal = function() {
+				$timeout( function(){
+				var all = ServerUserService.findAllLocal();
+				all.then(function successCallback(response) {	
+					angular.copy(response.data, $scope.users);
+				}, function errorCallback(response) {
+					alert(response.status + " " + response.statusText);
+				});
+				}, 2000);
+			}
+			
 		}]);
 	</script>
 </head>
@@ -153,28 +145,30 @@
 			</div>
 			
 			<div class="container createOrUpdateNewUser" ng-show="!showAllUsers">
-				<div class="row">
-					<div class="col-md-3">
-						First Name
+				<form novalidate>
+					<div class="row">
+						<div class="col-md-3">
+							First Name
+						</div>
+						<div class="col-md-9">
+							<input type="text" ng-model="newUser.firstName" required>
+						</div>
 					</div>
-					<div class="col-md-9">
-						<input type="text" ng-model="newUser.firstName">
+					<div class="row">
+						<div class="col-md-3">
+							Last Name
+						</div>
+						<div class="col-md-9">
+							<input type="text" ng-model="newUser.lastName" required>
+						</div>
 					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-3">
-						Last Name
+					<div class="row">
+						<div class="col-md-12">
+							<button ng-click="saveOrUpdateUser()">Create/Update</button>&nbsp;&nbsp;&nbsp;
+							<button ng-click="cancelAction()">Cancel</button>
+						</div>
 					</div>
-					<div class="col-md-9">
-						<input type="text" ng-model="newUser.lastName">
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-12">
-						<button ng-click="saveOrUpdateUser()">Create/Update</button>&nbsp;&nbsp;&nbsp;
-						<button ng-click="cancelAction()">Cancel</button>
-					</div>
-				</div>
+				</form>
 				
 			</div>
 			

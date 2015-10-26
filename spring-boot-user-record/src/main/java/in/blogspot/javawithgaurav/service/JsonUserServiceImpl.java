@@ -1,10 +1,14 @@
 package in.blogspot.javawithgaurav.service;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -23,95 +27,61 @@ import in.blogspot.javawithgaurav.domain.User;
 
 @Service
 public class JsonUserServiceImpl implements UserService {
-	/*public static void main(String args[]) {
-		JsonUserServiceImpl service = new JsonUserServiceImpl();
-		
-		List<User> users = service.findAll();
-		
-		User u = new User();
-		u.setId(UUID.randomUUID().toString());
-		u.setFirstName("Gaurav Mahilpuria");
-		u.setLastName("Mazra saab");
-		
-		users.add(u);
-		
-		u = new User();
-		u.setId(UUID.randomUUID().toString());
-		u.setFirstName("Gaurav Mahilpuria123");
-		u.setLastName("Mazra saab123");
-		
-		users.add(u);
-		
-		u = new User();
-		u.setId(UUID.randomUUID().toString());
-		u.setFirstName("Gaurav Mahilpuria1234");
-		u.setLastName("Mazra saab1234");
-		
-		users.add(u);
-		
-		u = new User();
-		u.setId(UUID.randomUUID().toString());
-		u.setFirstName("Gaurav Mahilpuria12345");
-		u.setLastName("Mazra saab12345");
-		
-		users.add(u);
-		
-		u = new User();
-		u.setId(UUID.randomUUID().toString());
-		u.setFirstName("Gaurav Mahilpuria123456");
-		u.setLastName("Mazra saab123456");
-		
-		users.add(u);
-		
-		u = new User();
-		u.setId(UUID.randomUUID().toString());
-		u.setFirstName("Gaurav Mahilpuria");
-		u.setLastName("Mazra saab");
-		
-		users.add(u);
-		
-		service.writeDataInJsonFile(users);
-	}*/
+	private ReadWriteLock lock = new ReentrantReadWriteLock(true);
+	private Lock readLock = lock.readLock();
+	private Lock writeLock = lock.writeLock();
+	
 	
 	private void writeDataInJsonFile(List<User> users) {
-		JsonFactory jsonFactory = new JsonFactory(); 
-		JsonGenerator jsonGen;
+		writeLock.lock();
 		try {
-			FileOutputStream fos = new FileOutputStream("src/main/resources/users.json");
-			jsonGen = jsonFactory.createGenerator(fos, JsonEncoding.UTF8);
-			jsonGen.setPrettyPrinter(new DefaultPrettyPrinter());
-			jsonGen.setCodec(new ObjectMapper());
-			jsonGen.writeStartObject();
-			jsonGen.writeArrayFieldStart("users");
-			for (User user : users) {
-				jsonGen.writeObject(user);
+			JsonFactory jsonFactory = new JsonFactory(); 
+			JsonGenerator jsonGen;
+			try {
+				FileOutputStream fos = new FileOutputStream("src/main/resources/users.json");
+				jsonGen = jsonFactory.createGenerator(fos, JsonEncoding.UTF8);
+				jsonGen.setPrettyPrinter(new DefaultPrettyPrinter());
+				jsonGen.setCodec(new ObjectMapper());
+				jsonGen.writeStartObject();
+				jsonGen.writeArrayFieldStart("users");
+				for (User user : users) {
+					jsonGen.writeObject(user);
+				}
+				
+				jsonGen.writeEndArray();
+				jsonGen.writeEndObject();
+				jsonGen.close();
+				
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			
-			jsonGen.writeEndArray();
-			jsonGen.writeEndObject();
-			jsonGen.close();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+		finally {
+			writeLock.unlock();
 		}
 		
 	}
 	
 	private Iterator<JsonNode> getUsersNodeIteratorFromJsonFile() {
-		final JsonFactory factory = new JsonFactory();
-		final ClassPathResource resource = new ClassPathResource("users.json");
+		readLock.lock();
 		try {
-			JsonParser jp = factory.createParser(resource.getInputStream());
-			jp.setCodec(new ObjectMapper());
-			JsonNode node = jp.readValueAsTree();
-			JsonNode nodeUsers = node.get("users");
-			Iterator<JsonNode> itr =  nodeUsers.elements();
-			return itr;
-			
-		} catch (IOException e) {
-			e.printStackTrace();
+			final JsonFactory factory = new JsonFactory();
+			try {
+				JsonParser jp = factory.createParser(new FileInputStream("src/main/resources/users.json"));
+				jp.setCodec(new ObjectMapper());
+				JsonNode node = jp.readValueAsTree();
+				JsonNode nodeUsers = node.get("users");
+				Iterator<JsonNode> itr =  nodeUsers.elements();
+				return itr;
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return EmptyIterator.instance();
 		}
-		return EmptyIterator.instance();
+		finally {
+			readLock.unlock();
+		}
 	}
 	
 	private User readUser(final JsonNode element) {
